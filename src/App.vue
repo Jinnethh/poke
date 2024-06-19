@@ -1,8 +1,6 @@
-
 <template>
-<div class="contenedor">
+  <div :class="['contenedor', tipoClase]">
     <div class="titulo">
-
       <h1 id="tlr">PokeDes</h1>
     </div>
 
@@ -12,16 +10,18 @@
       <div class="habi">
         <h3 id="n">#{{ idPok }}</h3>
         <h3 id="t">Nombre: {{ nombre }}</h3><br>
-        <h4 id="t">Tipo: {{ tipopok }}</h4>
-
-
+        <div>
+          <button v-for="tipo in tipos" :key="tipo" :class="['tipo-boton', tipo]" @click="cambiarFondo(tipo)">
+            {{ tipo }}
+          </button>
+        </div>
         <h4 id="t">Altura: {{ alturapok }} m</h4><br>
         <h4 id="t">Peso: {{ pesopok }} kg</h4><br>
         <div class="cota"></div>
       </div>
       <div class="pm">
-      <img id="f" :src="imgPok" alt=""><br>
-    </div>
+        <img id="f" :src="imgPok" alt=""><br>
+      </div>
       <table>
         <tbody>
           <tr>
@@ -29,61 +29,77 @@
               <h2 id="e">Estadisticas</h2>
             </div>
             <div class="esta">
-            <td>
-            <th id="o">VIDA</th>
-            <div class="stat-container">
-              {{ vidapok }}
-              <progress class="stat-bar1" max="255" :value="vidapok"></progress>
+              <td :class="tipoClase">
+                <th id="o">VIDA</th>
+                <div class="stat-container">
+                  {{ vidapok }}
+                  <progress class="stat-bar1" max="255" :value="vidapok">
+                    <span>{{ Math.round((vidapok / 255) * 100) }}%</span>
+                  </progress>
+                     <span class="max-value">/ 255</span>
+                </div>
+              </td>
+              <td :class="tipoClase">
+                <th id="r">ATAQUE</th>
+                <div class="stat-container">
+                  {{ ataquepok }}
+                  <progress class="stat-bar2" max="255" :value="ataquepok">
+                    <span>{{ Math.round((ataquepok / 255) * 100) }}%</span>
+                  </progress>
+                  <span class="max-value">/ 255</span>
+                </div>
+              </td>
+              <td :class="tipoClase">
+                <th id="m">DEFENSA</th>
+                <div class="stat-container">
+                  {{ defensapok }}
+                  <progress class="stat-bar3" max="255" :value="defensapok">
+                    <span>{{ Math.round((defensapok / 255) * 100) }}%</span>
+                  </progress>
+                  <span class="max-value">/ 255</span>
+                </div>
+              </td>
+              <td :class="tipoClase">
+                <th id="q">ATAQUE ESPECIAL</th>
+                <div class="stat-container">
+                  {{ atakespok }}
+                  <progress class="stat-bar4" max="255" :value="atakespok">
+                    <span>{{ Math.round((atakespok / 255) * 100) }}%</span>
+                  </progress>
+                  <span class="max-value">/ 255</span>
+                </div>
+              </td>
+              <td :class="tipoClase">
+                <th id="x">DEFENSA ESPECIAL</th>
+                <div class="stat-container">
+                  {{ defenespok }}
+                  <progress class="stat-bar5" max="255" :value="defenespok">
+                    <span>{{ Math.round((defenespok / 255) * 100) }}%</span>
+                  </progress>
+                  <span class="max-value">/ 255</span>
+                </div>
+              </td>
+              <td :class="tipoClase">
+                <th id="z">VELOCIDAD</th>
+                <div class="stat-container">
+                  {{ velocidadpok }}
+                  <progress class="stat-bar6" max="255" :value="velocidadpok">
+                    <span>{{ Math.round((velocidadpok / 255) * 100) }}%</span>
+                  </progress>
+                  <span class="max-value">/ 255</span>
+                </div>
+              </td>
             </div>
-            </td>
-            <td>
-            <th id="r">ATAQUE</th>
-            <div class="stat-container">
-              {{ ataquepok }}
-              <progress class="stat-bar2" max="255" :value="ataquepok"></progress>
-            </div>
-            </td>
-            <td>
-            <th id="m">DEFENSA</th>
-            <div class="stat-container">
-              {{ defensapok }}
-              <progress class="stat-bar3" max="255" :value="defensapok"></progress>
-            </div>
-            </td>
-            <td>
-            <th id="q">ATAQUE ESPECIAL</th>
-            <div class="stat-container">
-              {{ atakespok }}
-              <progress class="stat-bar4" max="255" :value="atakespok"></progress>
-            </div>
-            </td>
-            <td>
-            <th id="x">DEFENSA ESPECIAL</th>
-            <div class="stat-container">
-              {{ defenespok }}
-              <progress class="stat-bar5" max="255" :value="defenespok"></progress>
-            </div>
-            </td>
-            <td>
-            <th id="z">VELOCIDAD</th>
-            <div class="stat-container">
-              {{ velocidadpok }}
-              <progress class="stat-bar6" max="255" :value="velocidadpok"></progress>
-            </div>
-            </td>
-          </div>
           </tr>
         </tbody>
       </table>
-
     </div>
   </div>
-
 </template>
 
 <script setup>
 import axios from "axios";
-import { ref } from "vue";
+import { ref, computed } from "vue";
 
 let name = ref("");
 let imgPok = ref("");
@@ -98,10 +114,14 @@ let defensapok = ref("");
 let atakespok = ref("");
 let defenespok = ref("");
 let velocidadpok = ref("");
+let tipos = ref([]);
+
+let tipoClase = ref("");
 
 async function cargar() {
   let rep = await axios.get(`https://pokeapi.co/api/v2/pokemon/${name.value.toLowerCase()}`);
-  tipopok.value = rep.data.types.map(typeInfo => typeInfo.type.name).join(", ");
+  tipos.value = rep.data.types.map(typeInfo => typeInfo.type.name);
+  tipopok.value = tipos.value.join(", ");
   nombre.value = rep.data.name;
   imgPok.value = rep.data.sprites.other["official-artwork"].front_default;
   idPok.value = rep.data.id;
@@ -113,11 +133,84 @@ async function cargar() {
   atakespok.value = rep.data.stats[3].base_stat;
   defenespok.value = rep.data.stats[4].base_stat;
   velocidadpok.value = rep.data.stats[5].base_stat;
+
+  tipoClase.value = tipos.value[0];
+  cambiarFondo(tipos.value[0]);
 }
 
+function cambiarFondo(tipo) {
+  tipoClase.value = tipo;
+}
 </script>
 
 <style>
+.contenedor {
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+ 
+}
+
+.titulo {
+  margin-bottom: 20px;
+  
+}
+
+.for {
+  padding: 10px;
+}
+
+.tipo-boton {
+  margin: 5px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+  font-size: 100%;
+  border: 2px solid #ffffff; 
+  font-size: 2.2em;
+}
+
+.tipo-boton.aire, .contenedor.aire {
+  background-color: lightblue;
+}
+
+.tipo-boton.fuego, .contenedor.fuego {
+  background-color: #F08030;
+}
+
+.tipo-boton.agua, .contenedor.agua {
+  background-color: #6890F0;
+}
+
+.tipo-boton.tierra, .contenedor.tierra {
+  background-color: #E0C068;
+}
+
+.tipo-boton.normal, .contenedor.normal {
+  background-color: #A8A878;
+  
+}
+
+.habi, .pm, .esta, table, .dis {
+  margin-top: 20px;
+}
+
+.stat-container {
+  display: flex;
+  align-items: center;
+}
+
+progress {
+  width: 100px;
+  margin-left: 10px;
+}
+
+.max-value {
+  margin-left: 5px;
+}
+
 @font-face {
   font-family: "Noteworthy Light";
   src: url("https://db.onlinewebfonts.com/t/016f50054d487d421dc18257a191a3ad.eot");
@@ -128,11 +221,76 @@ async function cargar() {
     url("https://db.onlinewebfonts.com/t/016f50054d487d421dc18257a191a3ad.svg#Noteworthy Light")format("svg");
 }
 
-.contenedor{
-  width: 90%; 
-  margin: 0 auto; 
-  padding: 20px; 
-  box-sizing: border-box; 
+.contenedor {
+  padding: 20px;
+  border-radius: 10px;
+  transition: background-color 0.5s;
+}
+
+/* Estilos según el tipo de Pokémon */
+.water {
+  background-color: #3399FF;
+}
+.fire {
+  background-color: #FF6666;
+}
+.grass {
+  background-color: #66CC66;
+}
+.electric {
+  background-color: #FFCC33;
+}
+.ice {
+  background-color: #99CCFF;
+}
+.fighting {
+  background-color: #FF6633;
+}
+.poison {
+  background-color: #CC66CC;
+}
+.ground {
+  background-color: #DDBB77;
+}
+.flying {
+  background-color: #6699FF;
+}
+.psychic {
+  background-color: #FF99CC;
+}
+.bug {
+  background-color: #99CC33;
+}
+.rock {
+  background-color: #BBAA66;
+}
+.ghost {
+  background-color: #6666BB;
+}
+.dark {
+  background-color: #775544;
+}
+.dragon {
+  background-color: #7766EE;
+}
+.steel {
+  background-color: #AAAABB;
+}
+.fairy {
+  background-color: #EE99EE;
+}
+
+.stat-container {
+  position: relative;
+}
+
+.stat-container span {
+  position: absolute;
+  left: 95%;
+  transform: translateX(-50%);
+  top: 50%;
+  font-size: 0.8em;
+  color: rgb(0, 0, 0);
 }
 
 
@@ -145,7 +303,7 @@ async function cargar() {
   background-size: contain;
   height: 300px;
   margin-top: -6%;
-  font-size: 3em; /* Tamaño de fuente responsive */
+  font-size: 3em; 
   text-align: center;
   margin-bottom: 17px; /* Agrega espacio debajo del encabezado */
 
@@ -157,7 +315,7 @@ body {
 
 #tlr {
   position: absolute;
-  top: 15%;
+  top: 22%;
   justify-content: center;
   text-align: center;
   left: 35%;
@@ -206,7 +364,7 @@ body {
 
 .cota {
   position: absolute;
-  top: 75%;
+  top: 108%;
   left: 12%;
   width: 10vw; /* Cambiado a porcentaje del ancho de la ventana */
   height: 18vh; /* Cambiado a porcentaje del alto de la ventana */
@@ -233,7 +391,8 @@ body {
   position: absolute;
   justify-content: center;
   align-items: center;
-  align-content: center; 
+  align-content: center;
+
   width: 500px;
   height: auto;
   filter: drop-shadow(20px 7px 5px rgb(255, 255, 255));
@@ -242,12 +401,12 @@ body {
 }
 
 .pm{
-  right: 37%;
+  right: 20%;
   position: absolute;
   justify-content: center;
   align-items: center;
   align-content: center;
-  bottom: 40%;
+  bottom: 10%;
 }
 
 
@@ -263,17 +422,17 @@ body {
   cursor: pointer;
   box-shadow:
     0 4px 8px rgba(255, 0, 0, 0.6),
-  
+    /* Rojo */
     0 4px 8px rgba(0, 255, 0, 0.6),
-
+    /* Verde */
     0 0 5px rgba(255, 255, 0, 0.6),
-  
+    /* Amarillo */
     0 4px 8px rgba(0, 0, 255, 0.6);
- 
-  width: 100%; 
-  max-width: 200px; 
-  margin: 0 auto; 
-  margin-bottom: 20px; 
+  /* Azul */
+  width: 100%; /* Haz que el botón tenga el ancho completo */
+  max-width: 200px; /* Limita el ancho máximo del botón */
+  margin: 0 auto; /* Centra el botón horizontalmente */
+  margin-bottom: 20px; /* Agrega espacio debajo del botón */
   -webkit-transition: ease-out 0.4s;
   -moz-transition: ease-out 0.4s;
   transition: ease-out 0.4s;
@@ -292,13 +451,15 @@ body {
   position: absolute;
   border-radius: 0px 20px 0px 20px;
   left: 71%;
-  top: 43.5%;
+  top: 65%;
   font-family: "Noteworthy Light";
   font-size: 100%;
 
 }
 
-
+/* body{
+  background-image: url(https://p4.wallpaperbetter.com/wallpaper/719/10/493/abstract-four-elements-simple-background-wallpaper-preview.jpg);
+} */
 #fto {
   background-repeat: repeat;
 }
@@ -323,7 +484,7 @@ table {
   width: 100%;
   border-collapse: collapse;
  
-  margin-bottom: 20px; 
+  margin-bottom: 20px; /* Agrega espacio debajo de la tabla */
 }
 
 th,
@@ -343,15 +504,18 @@ th {
 }
 
 td {
-  background-color: rgb(0, 0, 0);
+  /* background-color: rgb(0, 0, 0); */
   vertical-align: middle;
-
+  /* Asegura que el contenido esté centrado verticalmente */
 }
 
 .stat-container {
   font-family: "Noteworthy Light";
   margin: 20px;
   text-align: center;
+ font-size: 20px;
+
+ 
 
 }
 
@@ -359,7 +523,7 @@ td {
   font-family: "Noteworthy Light";
   color: #ffffff;
   font-size: 160%;
-  text-shadow: 2px 10px 10px rgba(16, 0, 242, 0.5);
+  text-shadow: 2px 10px 10px rgba(103, 16, 243, 0.5);
 
 }
 
@@ -414,7 +578,7 @@ td {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 2px 5px rgba(255, 255, 255, 0.1);
   position: relative;
 
-  max-width: 100%; 
+  max-width: 100%; /* Limita el ancho máximo de la barra de progreso */
 }
 
 .stat-bar1 {
@@ -453,13 +617,13 @@ td {
 }
 
 .stat-bar1::-webkit-progress-value {
-  background: linear-gradient(90deg, #4b83f3 0%,#4b83f3 100%);
+  background: linear-gradient(90deg, #281594 0%, #281594 100%);
   transition: width 0.5s ease-in-out;
   border-radius: 15px;
 }
 
 .stat-bar1::-moz-progress-bar {
-  background: linear-gradient(90deg, #355bf5 0%, #355bf5 100%);
+  background: linear-gradient(90deg, #281594 0%, #281594 100%);
   transition: width 0.5s ease-in-out;
   border-radius: 15px;
 }
@@ -485,6 +649,8 @@ td {
   font-family: "Noteworthy Light";
 
 }
+
+
 
 
 .stat-bar1:after {
@@ -556,6 +722,7 @@ td {
   background: linear-gradient(90deg, #f3f3f3 0%, #e0e0e0 100%);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 2px 5px rgba(255, 255, 255, 0.1);
   position: relative;
+
 }
 
 
@@ -600,7 +767,9 @@ td {
   background: linear-gradient(90deg, #f3f3f3 0%, #e0e0e0 100%);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2), inset 0 2px 5px rgba(255, 255, 255, 0.1);
   position: relative;
+
 }
+
 
 
 .stat-bar4::-webkit-progress-bar {
@@ -749,18 +918,18 @@ td {
   color: #333;
 }
 
-@media screen and (max-width: 1150px){
+@media screen and (max-width: 2150px){
 
 #tlr{
   justify-content: center;
   align-items: center;
   position: absolute;
-  left: 40%;
+  left: 43%;
   top: 60px;
 
  }
  #cla{
-  margin-top: -10%;
+  margin-top: -21%;
   margin-left: -10%;
  }
 
@@ -780,7 +949,9 @@ td {
   justify-content: center;
   align-items: center;
   position: absolute;
-  left: 42%;
+  left: 38%;
+  top:20%
+
  }
 
  .caja{
@@ -952,3 +1123,5 @@ margin-top: 110%;
 }
 
 </style>
+
+
